@@ -1,0 +1,4 @@
+\set pgpass `echo "$POSTGRES_PASSWORD"`
+CREATE USER odoo WITH PASSWORD :'pgpass' CREATEDB;
+GRANT ALL PRIVILEGES ON DATABASE postgres TO odoo;
+GRANT ALL ON SCHEMA public TO odoo;
