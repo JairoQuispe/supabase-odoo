@@ -504,9 +504,8 @@ services:
     volumes:
       - odoo-data:/var/lib/odoo
       - ./volumes/odoo/odoo.conf:/etc/odoo/odoo.conf:ro,z
-      - odoo-addons:/usr/lib/python3/dist-packages/odoo/addons:ro,z
+      - ./volumes/odoo/addons:/usr/lib/python3/dist-packages/odoo/addons:z
 
 volumes:
   db-config:
   odoo-data:
-  odoo-addons:
