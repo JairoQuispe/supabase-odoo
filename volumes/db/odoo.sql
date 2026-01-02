@@ -1,28 +1,37 @@
 \set pgpass `echo "$POSTGRES_PASSWORD"`
 
--- Crear schema dedicado para Odoo (sin RLS)
-CREATE SCHEMA IF NOT EXISTS odoo;
+-- =============================================================================
+-- CONFIGURACIÓN COMPLETA PARA ODOO EN SCHEMA PUBLIC + SUPABASE EN SCHEMA APP
+-- =============================================================================
 
--- Crear usuario específico para Odoo
+-- Crear usuario específico para Odoo (privilegios completos en public)
 CREATE USER odoo_user WITH PASSWORD :'pgpass';
 
--- Otorgar permisos completos al usuario odoo_user sobre el schema odoo
-GRANT ALL ON SCHEMA odoo TO odoo_user;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA odoo TO odoo_user;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA odoo TO odoo_user;
-ALTER DEFAULT PRIVILEGES IN SCHEMA odoo GRANT ALL ON TABLES TO odoo_user;
-ALTER DEFAULT PRIVILEGES IN SCHEMA odoo GRANT ALL ON SEQUENCES TO odoo_user;
+-- Otorgar permisos completos al usuario odoo_user sobre el schema public
+GRANT ALL ON SCHEMA public TO odoo_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO odoo_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO odoo_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO odoo_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO odoo_user;
 
--- Crear usuario de solo lectura para Edge Functions
-CREATE USER odoo_readonly WITH PASSWORD :'pgpass';
-GRANT USAGE ON SCHEMA odoo TO odoo_readonly;
-GRANT SELECT ON ALL TABLES IN SCHEMA odoo TO odoo_readonly;
-ALTER DEFAULT PRIVILEGES IN SCHEMA odoo GRANT SELECT ON TABLES TO odoo_readonly;
+-- Crear schema app para Supabase (aplicaciones web)
+CREATE SCHEMA IF NOT EXISTS app;
 
--- Permitir a supabase_admin acceder al schema odoo para Supabase Studio
-GRANT USAGE ON SCHEMA odoo TO supabase_admin;
-GRANT SELECT ON ALL TABLES IN SCHEMA odoo TO supabase_admin;
-ALTER DEFAULT PRIVILEGES IN SCHEMA odoo GRANT SELECT ON TABLES TO supabase_admin;
+-- Otorgar permisos completos a supabase_admin sobre el schema app
+GRANT ALL ON SCHEMA app TO supabase_admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA app TO supabase_admin;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA app TO supabase_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA app GRANT ALL ON TABLES TO supabase_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA app GRANT ALL ON SEQUENCES TO supabase_admin;
 
--- Deshabilitar RLS para el schema odoo (Odoo necesita acceso sin filtros)
-ALTER SCHEMA odoo OWNER TO odoo_user;
+-- Permitir acceso cruzado controlado entre schemas
+GRANT USAGE ON SCHEMA public TO supabase_admin;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO supabase_admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO supabase_admin;
+
+-- Configurar search_path por defecto para cada usuario
+ALTER USER odoo_user SET search_path = public;
+ALTER USER supabase_admin SET search_path = app, public;
+
+-- Deshabilitar RLS para el schema public (Odoo necesita acceso sin filtros)
+ALTER SCHEMA public OWNER TO odoo_user;
