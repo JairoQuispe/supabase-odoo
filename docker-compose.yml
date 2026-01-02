@@ -497,7 +497,7 @@ services:
         condition: service_healthy
     environment:
       - HOST=db
-      - USER=supabase_admin
+      - USER=odoo_user
       - PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE=postgres
     command: ["odoo", "--http-interface=0.0.0.0"]
