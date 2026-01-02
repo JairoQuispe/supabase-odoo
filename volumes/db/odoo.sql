@@ -7,12 +7,17 @@
 -- Crear usuario específico para Odoo (privilegios completos en public)
 CREATE USER odoo_user WITH PASSWORD :'pgpass';
 
--- Otorgar permisos completos al usuario odoo_user sobre el schema public
+-- Otorgar permisos COMPLETOS e IDÉNTICOS a odoo_user sobre el schema public
+-- (Mismos privilegios que supabase_admin tiene sobre el schema app)
 GRANT ALL ON SCHEMA public TO odoo_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO odoo_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO odoo_user;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO odoo_user;
+GRANT ALL PRIVILEGES ON ALL PROCEDURES IN SCHEMA public TO odoo_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO odoo_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO odoo_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO odoo_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON PROCEDURES TO odoo_user;
 
 -- Crear schema app para Supabase (aplicaciones web)
 CREATE SCHEMA IF NOT EXISTS app;
